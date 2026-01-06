@@ -100,16 +100,18 @@ jobs:
         path: out/release/
 
     - name: Create manifest
+      shell: pwsh
       run: |
-        cat > manifest.json <<EOF
+        $content = @"
         {
           "commit": "${{ github.sha }}",
           "run_id": "${{ github.run_id }}",
           "workflow": "${{ github.workflow }}",
           "deployed_to": "prod",
-          "deployed_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          "deployed_at": "$(Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")"
         }
-        EOF
+        "@
+        $content | Out-File -Encoding utf8 manifest.json
 
     - name: Create GitHub Release
       id: create_release
