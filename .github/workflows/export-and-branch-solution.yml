@@ -43,6 +43,6 @@ jobs:
       uses: microsoft/powerplatform-actions/branch-solution@v1
       with:
         solution-folder: out/solutions/pocsolution
-        solution-target-folder: solutions/pocsolution
+        solution-target-folder: solutions
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         allow-empty-commit: true
