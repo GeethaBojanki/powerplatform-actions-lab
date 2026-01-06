@@ -17,34 +17,33 @@ jobs:
       RUNNER_DEBUG: 1
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        lfs: true
-
+    - name: Install Power Platform Tools
+      uses: microsoft/powerplatform-actions/actions-install@v1
+      
     - name: Pack solution
       uses: microsoft/powerplatform-actions/pack-solution@v0
       with:
-        solution-folder: solutions/ALMLab
-        solution-file: out/solutions/ALMLab.zip
+        solution-folder: solutions/pocsolution
+        solution-file: out/solutions/pocsolution.zip
         solution-type: Unmanaged
 
     - name: Import solution as unmanaged to build env
       uses: microsoft/powerplatform-actions/import-solution@v0
       with:
-        environment-url: 'https://user9-build.crm.dynamics.com/'
-        user-name: 'user9@wrkdevops.onmicrosoft.com'
+        environment-url: 'https://org20e0c890.crm4.dynamics.com/'
+        user-name: 'geethabojanki@881998.onmicrosoft.com'
         password-secret: ${{ secrets.password }}
-        solution-file: out/solutions/ALMLab.zip
+        solution-file: out/solutions/pocsolution.zip
         force-overwrite: true
         publish-changes: true
 
     - name: Export solution as managed
       uses: microsoft/powerplatform-actions/export-solution@v0
       with:
-        environment-url: 'https://user9-build.crm.dynamics.com/'
-        user-name: 'user9@wrkdevops.onmicrosoft.com'
+        environment-url: 'https://org20e0c890.crm4.dynamics.com/'
+        user-name: 'geethabojanki@881998.onmicrosoft.com'
         password-secret: ${{ secrets.password }}
-        solution-name: ALMLab
+        solution-name: pocsolution
         managed: true
         solution-output-file: out/ship/ALMLab.zip
 
@@ -52,7 +51,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: managedSolutions
-        path: out/ship/ALMLab.zip
+        path: out/ship/pocsolution.zip
 
   release-to-staging:
     needs: [ convert-to-managed ]
@@ -61,9 +60,8 @@ jobs:
       RUNNER_DEBUG: 1
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        lfs: true
+    - name: Install Power Platform Tools
+      uses: microsoft/powerplatform-actions/actions-install@v1
 
     - name: Fetch the ready to ship solution from GH artifact store
       uses: actions/download-artifact@v2
@@ -74,9 +72,9 @@ jobs:
     - name: Import solution to prod env
       uses: microsoft/powerplatform-actions/import-solution@v0
       with:
-        environment-url: 'https://user9-prod.crm.dynamics.com/'
-        user-name: 'user9@wrkdevops.onmicrosoft.com'
+        environment-url: 'https://org20e0c890.crm4.dynamics.com/'
+        user-name: 'geethabojanki@881998.onmicrosoft.com'
         password-secret: ${{ secrets.password }}
-        solution-file: out/release/ALMLab.zip
+        solution-file: out/release/pocsolution.zip
         force-overwrite: true
         publish-changes: true
