@@ -30,7 +30,7 @@ jobs:
     - name: Import solution as unmanaged to build env
       uses: microsoft/powerplatform-actions/import-solution@v0
       with:
-        environment-url: 'https://org20e0c890.crm4.dynamics.com/'
+        environment-url: 'https://pocsat.crm8.dynamics.com/'
         user-name: 'geethabojanki@881998.onmicrosoft.com'
         password-secret: ${{ secrets.password }}
         solution-file: out/solutions/pocsolution.zip
@@ -40,7 +40,7 @@ jobs:
     - name: Export solution as managed
       uses: microsoft/powerplatform-actions/export-solution@v0
       with:
-        environment-url: 'https://org20e0c890.crm4.dynamics.com/'
+        environment-url: 'https://pocsat.crm8.dynamics.com/'
         user-name: 'geethabojanki@881998.onmicrosoft.com'
         password-secret: ${{ secrets.password }}
         solution-name: pocsolution
@@ -72,7 +72,7 @@ jobs:
     - name: Import solution to prod env
       uses: microsoft/powerplatform-actions/import-solution@v0
       with:
-        environment-url: 'https://org20e0c890.crm4.dynamics.com/'
+        environment-url: 'https://pocprod.crm8.dynamics.com/'
         user-name: 'geethabojanki@881998.onmicrosoft.com'
         password-secret: ${{ secrets.password }}
         solution-file: out/release/pocsolution.zip
