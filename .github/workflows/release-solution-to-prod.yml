@@ -99,6 +99,11 @@ jobs:
         name: managedSolutions
         path: out/release/
 
+    - name: Set current date
+      shell: pwsh
+      run: |
+        "BUILD_DATE=$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')" >> $env:GITHUB_ENV
+
     - name: Create manifest
       shell: pwsh
       run: |
@@ -108,7 +113,7 @@ jobs:
           "run_id": "${{ github.run_id }}",
           "workflow": "${{ github.workflow }}",
           "deployed_to": "prod",
-          "deployed_at": "$(Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")"
+          "deployed_at": "$env:BUILD_DATE"
         }
         "@
         $content | Out-File -Encoding utf8 manifest.json
@@ -119,8 +124,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: release-${{ github.run_id }}-${{ github.sha }}
-        release_name: Release ${{ github.run_id }} - ${{ github.sha }}
+        tag_name: release-${{ env.BUILD_DATE }}-${{ github.run_id }}
+        release_name: Release ${{ env.BUILD_DATE }} - ${{ github.run_id }}
         body: |
           Deployment to PROD of commit ${{ github.sha }}
           Workflow run: ${{ github.run_id }}
