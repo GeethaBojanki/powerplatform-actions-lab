@@ -1,7 +1,7 @@
 name: release-solution-to-prod
 # prepare for releasing to prod:
 #   convert solution to managed (using a build PowerPlatform environment for the conversion)
-#   upload the solution to the GitHub artifacts and deploy to the PROD environment
+#   upload the solution to the GitHub Releases and deploy to the PROD environment
 
 on:
   workflow_dispatch:
@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+
 jobs:
   convert-to-managed:
     runs-on: windows-latest
@@ -81,3 +82,62 @@ jobs:
         solution-file: out/release/pocsolution.zip
         force-overwrite: true
         publish-changes: true
+
+  publish-release:
+    needs: [ release-to-staging ]
+    runs-on: windows-latest
+    env:
+      RUNNER_DEBUG: 1
+
+    steps:
+    - name: Fetch the ready to ship solution from GH artifact store
+      uses: actions/download-artifact@v4
+      with:
+        name: managedSolutions
+        path: out/release/
+
+    - name: Create manifest
+      run: |
+        cat > manifest.json <<EOF
+        {
+          "commit": "${{ github.sha }}",
+          "run_id": "${{ github.run_id }}",
+          "workflow": "${{ github.workflow }}",
+          "deployed_to": "prod",
+          "deployed_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        }
+        EOF
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: release-${{ github.run_id }}-${{ github.sha }}
+        release_name: Release ${{ github.run_id }} - ${{ github.sha }}
+        body: |
+          Deployment to PROD of commit ${{ github.sha }}
+          Workflow run: ${{ github.run_id }}
+        draft: false
+        prerelease: false
+
+    - name: Upload managed solution to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./out/release/pocsolution.zip
+        asset_name: pocsolution-managed-${{ github.run_id }}.zip
+        asset_content_type: application/zip
+
+    - name: Upload manifest to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./manifest.json
+        asset_name: manifest-${{ github.run_id }}.json
+        asset_content_type: application/json
