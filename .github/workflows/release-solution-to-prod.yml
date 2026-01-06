@@ -21,14 +21,14 @@ jobs:
       uses: microsoft/powerplatform-actions/actions-install@v1
       
     - name: Pack solution
-      uses: microsoft/powerplatform-actions/pack-solution@v0
+      uses: microsoft/powerplatform-actions/pack-solution@v1
       with:
         solution-folder: solutions/pocsolution
         solution-file: out/solutions/pocsolution.zip
         solution-type: Unmanaged
 
     - name: Import solution as unmanaged to build env
-      uses: microsoft/powerplatform-actions/import-solution@v0
+      uses: microsoft/powerplatform-actions/import-solution@v1
       with:
         environment-url: 'https://pocsat.crm8.dynamics.com/'
         user-name: 'geethabojanki@881998.onmicrosoft.com'
@@ -38,7 +38,7 @@ jobs:
         publish-changes: true
 
     - name: Export solution as managed
-      uses: microsoft/powerplatform-actions/export-solution@v0
+      uses: microsoft/powerplatform-actions/export-solution@v1
       with:
         environment-url: 'https://pocsat.crm8.dynamics.com/'
         user-name: 'geethabojanki@881998.onmicrosoft.com'
@@ -48,7 +48,7 @@ jobs:
         solution-output-file: out/ship/ALMLab.zip
 
     - name: Upload the ready to ship solution to GH artifact store
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: managedSolutions
         path: out/ship/pocsolution.zip
@@ -64,13 +64,13 @@ jobs:
       uses: microsoft/powerplatform-actions/actions-install@v1
 
     - name: Fetch the ready to ship solution from GH artifact store
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: managedSolutions
         path: out/release/
 
     - name: Import solution to prod env
-      uses: microsoft/powerplatform-actions/import-solution@v0
+      uses: microsoft/powerplatform-actions/import-solution@v1
       with:
         environment-url: 'https://pocprod.crm8.dynamics.com/'
         user-name: 'geethabojanki@881998.onmicrosoft.com'
