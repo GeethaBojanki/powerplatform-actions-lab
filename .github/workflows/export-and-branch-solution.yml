@@ -38,3 +38,14 @@ jobs:
         solution-folder: out/solutions/pocsolution
         solution-type: 'Unmanaged'
         overwrite-files: true
+
+    - name: Commit changes
+      run: |
+        cp -r ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }} ./${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }} 
+        git config --global user.email "geetha.bojanki@outlook.com"
+        git config --global user.name "GeethaBojanki"
+        git checkout main
+        git add --all 
+        git commit -m "Updates from the dev environment"
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+        git push
