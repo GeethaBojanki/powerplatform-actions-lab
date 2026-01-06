@@ -45,7 +45,7 @@ jobs:
         password-secret: ${{ secrets.password }}
         solution-name: pocsolution
         managed: true
-        solution-output-file: out/ship/ALMLab.zip
+        solution-output-file: out/ship/pocsolution.zip
 
     - name: Upload the ready to ship solution to GH artifact store
       uses: actions/upload-artifact@v4
