@@ -3,6 +3,10 @@ name: export-solution-on-main
 #  unpack it and prepare, commit and push a git branch with the changes
 
 on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
     inputs:
       # Change this value
