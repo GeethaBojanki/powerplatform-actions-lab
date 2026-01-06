@@ -28,9 +28,10 @@ jobs:
     - name: export-solution action
       uses: microsoft/powerplatform-actions/export-solution@v1
       with:
-        environment-url: 'https://devpoc.crm8.dynamics.com/'
-        user-name: 'geethabojanki@881998.onmicrosoft.com'
-        password-secret: ${{ secrets.password }}
+        environment-url: ${{ vars.DEV_URL }}
+        app-id: ${{ secrets.APP_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        tenant-id: ${{ secrets.TENANT_ID }}
         solution-name: pocsolution
         solution-output-file: out/exported/pocsolution.zip
 
