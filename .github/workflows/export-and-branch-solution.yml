@@ -38,7 +38,7 @@ jobs:
       uses: microsoft/powerplatform-actions/unpack-solution@v1
       with:
         solution-file: out/exported/pocsolution.zip
-        solution-folder: out/solutions/pocsolution
+        solution-folder: powerplatform-actions-lab/solutions/pocsolution
         solution-type: 'Unmanaged'
         overwrite-files: true
 
