@@ -32,12 +32,12 @@ jobs:
         user-name: 'geethabojanki@881998.onmicrosoft.com'
         password-secret: ${{ secrets.password }}
         solution-name: pocsolution
-        solution-output-file: out/exported/pocsolution.zip
+        solution-output-file: solutions/pocsolution.zip
 
     - name: unpack-solution action
       uses: microsoft/powerplatform-actions/unpack-solution@v1
       with:
-        solution-file: out/exported/pocsolution.zip
+        solution-file: solutions/pocsolution.zip
         solution-folder: solutions/pocsolution
         solution-type: 'Unmanaged'
         overwrite-files: true
