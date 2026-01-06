@@ -34,9 +34,10 @@ jobs:
     - name: Import solution as unmanaged to build env
       uses: microsoft/powerplatform-actions/import-solution@v1
       with:
-        environment-url: 'https://pocsat.crm8.dynamics.com/'
-        user-name: 'geethabojanki@881998.onmicrosoft.com'
-        password-secret: ${{ secrets.password }}
+        environment-url: ${{ vars.DEV_URL }}
+        app-id: ${{ secrets.APP_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        tenant-id: ${{ secrets.TENANT_ID }}
         solution-file: out/solutions/pocsolution.zip
         force-overwrite: true
         publish-changes: true
@@ -44,9 +45,10 @@ jobs:
     - name: Export solution as managed
       uses: microsoft/powerplatform-actions/export-solution@v1
       with:
-        environment-url: 'https://pocsat.crm8.dynamics.com/'
-        user-name: 'geethabojanki@881998.onmicrosoft.com'
-        password-secret: ${{ secrets.password }}
+        environment-url: ${{ vars.SAT_URL }}
+        app-id: ${{ secrets.APP_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        tenant-id: ${{ secrets.TENANT_ID }}
         solution-name: pocsolution
         managed: true
         solution-output-file: out/ship/pocsolution.zip
@@ -76,9 +78,10 @@ jobs:
     - name: Import solution to prod env
       uses: microsoft/powerplatform-actions/import-solution@v1
       with:
-        environment-url: 'https://pocprod.crm8.dynamics.com/'
-        user-name: 'geethabojanki@881998.onmicrosoft.com'
-        password-secret: ${{ secrets.password }}
+        environment-url: ${{ vars.PROD_URL }}
+        app-id: ${{ secrets.APP_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        tenant-id: ${{ secrets.TENANT_ID }}
         solution-file: out/release/pocsolution.zip
         force-overwrite: true
         publish-changes: true
