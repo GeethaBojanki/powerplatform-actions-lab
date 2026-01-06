@@ -38,11 +38,3 @@ jobs:
         solution-folder: out/solutions/pocsolution
         solution-type: 'Unmanaged'
         overwrite-files: true
-
-    - name: branch-solution, prepare it for a PullRequest
-      uses: microsoft/powerplatform-actions/branch-solution@v1
-      with:
-        solution-folder: out/solutions/pocsolution
-        solution-target-folder: solutions
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        allow-empty-commit: true
