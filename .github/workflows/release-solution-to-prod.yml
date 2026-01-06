@@ -99,10 +99,9 @@ jobs:
         name: managedSolutions
         path: out/release/
 
-    - name: Set current date
-      shell: pwsh
-      run: |
-        "BUILD_DATE=$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')" >> $env:GITHUB_ENV
+    - name: Set build date
+      shell: bash
+      run: echo "BUILD_DATE=$(date -u +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
     - name: Create manifest
       shell: pwsh
