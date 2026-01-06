@@ -39,10 +39,13 @@ jobs:
         solution-type: 'Unmanaged'
         overwrite-files: true
 
-    - name: branch-solution, prepare it for a PullRequest
-      uses: microsoft/powerplatform-actions/branch-solution@v1
-      with:
-        solution-folder: out/solutions/pocsolution
-        solution-target-folder: solutions
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        allow-empty-commit: true
+    - name: Commit changes
+      run: |
+        cp -r out/solutions/pocsolution ./solutions/pocsolution 
+        git config --global user.email "geetha.bojanki@outlook.com"
+        git config --global user.name "GeethaBojanki"
+        git checkout main
+        git add --all 
+        git commit -m "Updates from the dev environment"
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+        git push
