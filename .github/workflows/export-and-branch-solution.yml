@@ -41,7 +41,6 @@ jobs:
 
     - name: Commit changes
       run: |
-        cp -r out/solutions/pocsolution ./solutions/pocsolution 
         git config --global user.email "geetha.bojanki@outlook.com"
         git config --global user.name "GeethaBojanki"
         git checkout main
