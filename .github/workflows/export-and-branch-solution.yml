@@ -40,9 +40,7 @@ jobs:
     steps:
     - name: Install Power Platform Tools
       uses: microsoft/powerplatform-actions/actions-install@v1
-        
-    
-
+      
     - name: export-solution action
       uses: microsoft/powerplatform-actions/export-solution@v0
       with:
