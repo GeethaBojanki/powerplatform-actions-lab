@@ -50,3 +50,156 @@ jobs:
         git add .
         git commit -m "commit files"
         git push
+    
+  import-solution-to-sat:
+    runs-on: windows-latest
+    needs: [ export-from-dev ]
+    env:
+      RUNNER_DEBUG: 1
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Install Power Platform Tools
+      uses: microsoft/powerplatform-actions/actions-install@v1
+      
+    - name: Pack solution
+      uses: microsoft/powerplatform-actions/pack-solution@v1
+      with:
+        solution-folder: solutions/pocsolution
+        solution-file: out/solutions/pocsolution.zip
+        solution-type: Unmanaged
+
+    - name: Import solution as unmanaged to build env
+      uses: microsoft/powerplatform-actions/import-solution@v1
+      with:
+        environment-url: ${{ vars.DEV_URL }}
+        app-id: ${{ secrets.APP_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        tenant-id: ${{ secrets.TENANT_ID }}
+        solution-file: out/solutions/pocsolution.zip
+        force-overwrite: true
+        publish-changes: true
+
+  convert-to-managed:
+    runs-on: windows-latest
+    needs: [ export-from-dev, import-solution-to-sat ]
+    env:
+      RUNNER_DEBUG: 1
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Install Power Platform Tools
+      uses: microsoft/powerplatform-actions/actions-install@v1
+
+    - name: Export solution as managed
+      uses: microsoft/powerplatform-actions/export-solution@v1
+      with:
+        environment-url: ${{ vars.SAT_URL }}
+        app-id: ${{ secrets.APP_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        tenant-id: ${{ secrets.TENANT_ID }}
+        solution-name: pocsolution
+        managed: true
+        solution-output-file: out/ship/pocsolution.zip
+
+    - name: Upload the ready to ship solution to GH artifact store
+      uses: actions/upload-artifact@v4
+      with:
+        name: managedSolutions
+        path: out/ship/pocsolution.zip
+
+  release-to-staging:
+    needs: [ export-from-dev, import-solution-to-sat, convert-to-managed ]
+    runs-on: windows-latest
+    env:
+      RUNNER_DEBUG: 1
+
+    steps:
+    - name: Install Power Platform Tools
+      uses: microsoft/powerplatform-actions/actions-install@v1
+
+    - name: Fetch the ready to ship solution from GH artifact store
+      uses: actions/download-artifact@v4
+      with:
+        name: managedSolutions
+        path: out/release/
+
+    - name: Import solution to prod env
+      uses: microsoft/powerplatform-actions/import-solution@v1
+      with:
+        environment-url: ${{ vars.PROD_URL }}
+        app-id: ${{ secrets.APP_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        tenant-id: ${{ secrets.TENANT_ID }}
+        solution-file: out/release/pocsolution.zip
+        force-overwrite: true
+        publish-changes: true
+
+  publish-release:
+    needs: [ export-from-dev, import-solution-to-sat, convert-to-managed , release-to-staging ]
+    runs-on: windows-latest
+    env:
+      RUNNER_DEBUG: 1
+
+    steps:
+    - name: Fetch the ready to ship solution from GH artifact store
+      uses: actions/download-artifact@v4
+      with:
+        name: managedSolutions
+        path: out/release/
+
+    - name: Set build date
+      shell: bash
+      run: echo "BUILD_DATE=$(date -u +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+    - name: Create manifest
+      shell: pwsh
+      run: |
+        $content = @"
+        {
+          "commit": "${{ github.sha }}",
+          "run_id": "${{ github.run_id }}",
+          "workflow": "${{ github.workflow }}",
+          "deployed_to": "prod",
+          "deployed_at": "$env:BUILD_DATE"
+        }
+        "@
+        $content | Out-File -Encoding utf8 manifest.json
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: release-${{ env.BUILD_DATE }}-${{ github.run_id }}
+        release_name: Release ${{ env.BUILD_DATE }} - ${{ github.run_id }}
+        body: |
+          Deployment to PROD of commit ${{ github.sha }}
+          Workflow run: ${{ github.run_id }}
+        draft: false
+        prerelease: false
+
+    - name: Upload managed solution to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./out/release/pocsolution.zip
+        asset_name: pocsolution-managed-${{ github.run_id }}.zip
+        asset_content_type: application/zip
+
+    - name: Upload manifest to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./manifest.json
+        asset_name: manifest-${{ github.run_id }}.json
+        asset_content_type: application/json
