@@ -115,6 +115,8 @@ jobs:
   release-to-prod:
     needs: [ release-solution-to-sat ]
     runs-on: windows-latest
+    environment:
+      name: prod
     env:
       RUNNER_DEBUG: 1
 
