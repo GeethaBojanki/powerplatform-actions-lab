@@ -140,7 +140,7 @@ jobs:
         publish-changes: true
 
   publish-release:
-    needs: [ export-from-dev, import-solution-to-sat, convert-to-managed , release-to-staging ]
+    needs: [ export-from-dev, import-solution-to-sat, convert-to-managed , release-to-prod ]
     runs-on: windows-latest
     env:
       RUNNER_DEBUG: 1
