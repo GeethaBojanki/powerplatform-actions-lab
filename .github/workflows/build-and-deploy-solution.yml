@@ -51,7 +51,7 @@ jobs:
         git commit -m "commit files"
         git push
     
-  import-solution-to-sat:
+  release-solution-to-sat:
     runs-on: windows-latest
     needs: [ export-from-dev ]
     env:
@@ -84,7 +84,7 @@ jobs:
 
   convert-to-managed:
     runs-on: windows-latest
-    needs: [ export-from-dev, import-solution-to-sat ]
+    needs: [ export-from-dev ]
     env:
       RUNNER_DEBUG: 1
 
@@ -113,7 +113,7 @@ jobs:
         path: out/ship/pocsolution.zip
 
   release-to-prod:
-    needs: [ export-from-dev, import-solution-to-sat, convert-to-managed ]
+    needs: [ release-solution-to-sat ]
     runs-on: windows-latest
     env:
       RUNNER_DEBUG: 1
@@ -140,7 +140,7 @@ jobs:
         publish-changes: true
 
   publish-release:
-    needs: [ export-from-dev, import-solution-to-sat, convert-to-managed , release-to-prod ]
+    needs: [ convert-to-managed , release-to-prod ]
     runs-on: windows-latest
     env:
       RUNNER_DEBUG: 1
